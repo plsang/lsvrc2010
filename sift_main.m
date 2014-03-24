@@ -4,7 +4,7 @@ function sift_main(sift_algo, param)
 set_env;
 
 if matlabpool('size') < 1,
-	matlabpool open;
+	matlabpool open 4;
 end	
 sift_select_features(sift_algo, param); 
 matlabpool close; 

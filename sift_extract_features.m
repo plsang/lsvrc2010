@@ -11,7 +11,7 @@ function [frames, descrs] = sift_extract_features( im, sift_algo, param )
 			else
 				obj.nSize = 6;
 			end
-			[frames, descrs] = vl_dsift(single(rgb2gray(im)), 'step', obj.nSize);
+			[frames, descrs] = vl_dsift(normalizeIm(im), 'step', obj.nSize);
 			
 		case 'covdet'
 			if exist('param', 'var'),
@@ -20,11 +20,7 @@ function [frames, descrs] = sift_extract_features( im, sift_algo, param )
 				obj.method = 'dog';
 			end
 			
-			if ndims(im) == 3,
-				im = rgb2gray(im);
-			end
-			
-			[frames, descrs] = vl_covdet(single(im), 'method', obj.method);
+			[frames, descrs] = vl_covdet(normalizeIm(im), 'method', obj.method);
 				
 		case 'phow'
             obj.verbose = false;
@@ -52,6 +48,23 @@ function [frames, descrs] = sift_extract_features( im, sift_algo, param )
 			error('Unknow sift algorithm!!!\n');
 	end
 	
+end
+
+function im = normalizeIm(im)
+	maxImSize = 300;
+	
+	if ndims(im) == 3,
+		im = im2single(rgb2gray(im));
+	else
+		im = im2single(im);
+	end;
+	
+	[im_h, im_w] = size(im);
+	
+	if max(im_h, im_w) > maxImSize,
+		im = imresize(im, maxImSize/max(im_h, im_w), 'bicubic');
+	end
+
 end
 
 function im = standardizeImage(im)
