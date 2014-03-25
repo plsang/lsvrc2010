@@ -1,4 +1,4 @@
-function sift_main(sift_algo, param)
+function sift_main(sift_algo, param, start_class, end_class)
 
 %% set environment variables
 set_env;
@@ -18,7 +18,7 @@ do_clustering_gmm(proj_dir, feat_pat, dimred);
 if matlabpool('size') < 1,
 	matlabpool open 8;
 end	
-sift_encode_fc_home(proj_dir, 'train', 'covdet', 'hessian', 80);
+sift_encode_fc_home(proj_dir, 'train', 'covdet', 'hessian', 80, 256, 0, start_class, end_class);
 matlabpool close; 
 
 end

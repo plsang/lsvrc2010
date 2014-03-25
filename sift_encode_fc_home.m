@@ -1,4 +1,4 @@
-function [ output_args ] = sift_encode_fc_home( proj_dir, szPat, sift_algo, param, dimred, codebook_size, spm)
+function [ output_args ] = sift_encode_fc_home( proj_dir, szPat, sift_algo, param, dimred, codebook_size, spm, start_class, end_class)
 
 	% update: Jun 25th, SPM suported
     % setting
@@ -57,7 +57,15 @@ function [ output_args ] = sift_encode_fc_home( proj_dir, szPat, sift_algo, para
     
 	train_classes = dir (fullfile(kf_dir, 'n*'));
 	
-    for ii = 1:length(train_classes),
+	if ~exist('start_class', 'var') || start_class < 1,
+        start_class = 1;
+    end
+    
+    if ~exist('end_class', 'var') || end_class > length(train_classes),
+        end_class = length(videos);
+    end
+	
+    for ii = start_class:end_class,
         class_name = train_classes(ii).name;              
     
         class_kf_dir = fullfile(kf_dir, class_name);
