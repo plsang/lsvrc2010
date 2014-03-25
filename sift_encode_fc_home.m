@@ -90,21 +90,30 @@ function [ output_args ] = sift_encode_fc_home( proj_dir, szPat, sift_algo, para
 			img_name = kfs(jj).name;
 			
 			img_path = fullfile(class_kf_dir, img_name);
-			im = imread(img_path);
 			
-			[frames, descrs] = sift_extract_features( im, sift_algo, param );
-			
-			% if more than 50% of points are empty --> possibley empty image
-            if sum(all(descrs == 0, 1)) > 0.5*size(descrs, 2),
-                warning('Maybe blank image...[%s]. Skipped!\n', img_name);
-                continue;
-            end
-			
-			if spm > 0
-				code = sift_encode_spm(enc_type, size(im), frames, descrs, codebook, [], low_proj);
-			else
-				code = sift_do_encoding(enc_type, descrs, codebook, [], low_proj);	
-			end
+			%% error for image: n02872752_3721.JPEG (class 284)
+			%% JPEG images with CMYK colorspace are not currently supported.
+
+			try
+				im = imread(img_path);
+				
+				[frames, descrs] = sift_extract_features( im, sift_algo, param );
+				
+				% if more than 50% of points are empty --> possibley empty image
+				if sum(all(descrs == 0, 1)) > 0.5*size(descrs, 2),
+					warning('Maybe blank image...[%s]. Skipped!\n', img_name);
+					continue;
+				end
+				
+				if spm > 0
+					code = sift_encode_spm(enc_type, size(im), frames, descrs, codebook, [], low_proj);
+				else
+					code = sift_do_encoding(enc_type, descrs, codebook, [], low_proj);	
+				end
+				
+			catch
+				continue;
+			end			
 			
 			codes{jj} = code;
 		end
