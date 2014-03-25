@@ -1,4 +1,4 @@
-function [ output_args ] = sift_encode_home( proj_name, kf_dir_name, szPat, codebook_size, spm, sift_algo, param, start_seg, end_seg )
+function [ output_args ] = sift_encode_home( proj_name, codebook_size, spm, sift_algo, param, start_seg, end_seg )
 %ENCODE Summary of this function goes here
 %   Detailed explanation goes here
 %% kf_dir_name: name of keyframe folder, e.g. keyframe-60 for segment length of 60s   
