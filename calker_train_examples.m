@@ -2,6 +2,8 @@
 %% M classes, N images, R: random number
 function calker_train_examples(M, N, R, start_class, end_class)
 	
+	set_env;
+	
 	imdb_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/imdb.mat', M, N, R);
 	if exist(imdb_file, 'file'),
 		imdb = load(imdb_file, 'imdb');

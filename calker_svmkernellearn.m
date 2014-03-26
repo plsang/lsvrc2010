@@ -108,7 +108,7 @@ end
 % --------------------------------------------------------------------
 
 % basic libsvm options
-svm_opts = ' -t 4 -b 1' ;
+svm_opts = ' -t 4 -b 1 -q' ;
 
 switch type
   case 'C'
