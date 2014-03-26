@@ -1,6 +1,6 @@
 
 %% M classes, N images, R: random number
-function calker_train_examples(M, N, R)
+function calker_train_examples(M, N, R, start_class, end_class)
 	
 	imdb_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/imdb.mat', M, N, R);
 	if exist(imdb_file, 'file'),
@@ -42,8 +42,13 @@ function calker_train_examples(M, N, R)
 			codes = load(feat_file, 'codes');
 			
 			selected_img_feats = codes.codes(selected_img_idx);
-			hists{ii} = cat(2, selected_img_feats{:}); 
-			labels{ii} = ii*ones(length(selected_img_idx), 1);
+			selected_img_feats = cat(2, selected_img_feats{:});
+			
+			%% removing NaN entries
+			selected_img_feats(:, any(isnan(selected_img_feats), 1)) = [];
+			
+			hists{ii} = selected_img_feats; 
+			labels{ii} = ii*ones(size(selected_img_feats, 2), 1);
 		end
 		
 		hists = cat(2, hists{:});
@@ -85,8 +90,16 @@ function calker_train_examples(M, N, R)
         end
     end
 	
+	if ~exist('start_class', 'var') || start_class < 1,
+        start_class = 1;
+    end
+    
+    if ~exist('end_class', 'var') || end_class > M,
+        end_class = M;
+    end
+	
 	fprintf('start training...\n');
-	for kk = 1:M,
+	for kk = start_class:end_class,
 		class_name = selected_classes{kk};
 	
         model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_rand%dc_%di/r%d/models/%s.mat', M, N, R, class_name);
