@@ -1,23 +1,42 @@
 
 %% M classes, N images, R: random number
-function calker_train_examples(M, N, R, start_class, end_class)
+function calker_train_examples(M, N, R, varargin)
 	
-	set_env;
+	test_on_train = 0;
+	start_class = 1;
+	end_class = M;
+	cv = 0;	% cross validation
+	C = 1;	% C parameter for SVM
 	
+	for k=1:2:length(varargin),
+	
+		opt = lower(varargin{k});
+		arg = varargin{k+1} ;
+	  
+		switch opt
+			case 'test_on_train' 
+				test_on_train = arg ;
+			case 'start_class'
+				start_class = arg ;
+			case 'end_class' ;
+				end_class = arg ;
+			case 'cv' ;
+				cv = arg ;
+			case 'C' ;
+				C = arg ;
+			otherwise
+				error(sprintf('Option ''%s'' unknown.', opt)) ;
+		end  
+	end
+
 	imdb_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/imdb.mat', M, N, R);
-	if exist(imdb_file, 'file'),
-		imdb = load(imdb_file, 'imdb');
-		imdb = imdb.imdb;
-	else
-		imdb = calker_select_training_examples(M, N);
-		if ~exist(fileparts(imdb_file), 'file'),
-			mkdir(fileparts(imdb_file));
-		end
-		save(imdb_file, 'imdb');
+	if ~exist(imdb_file, 'file'),
+		error();
 	end
 	
-	%% loading features
-	fea_dir = '/net/per610a/export/das11f/plsang/LSVRC2010/feature/covdet.hessian.sift.cb256.pca80.fisher/train';
+	fprintf('Loading selected image db...\n');
+	imdb = load(imdb_file, 'imdb');
+	imdb = imdb.imdb;
 	
 	selected_classes = fieldnames(imdb);
 	
@@ -25,61 +44,29 @@ function calker_train_examples(M, N, R, start_class, end_class)
 	labels_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_rand%dc_%di/r%d/labels.mat', M, N, R);
 	train_ker_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_rand%dc_%di/r%d/train_ker.mat', M, N, R);
 	
-	if exist(hists_file, 'file') && exist(labels_file, 'file'),
-		hists = load(hists_file, 'hists');
-		labels = load(labels_file, 'labels');
-		
-		hists = hists.hists;
-		labels = labels.labels;
-	else
-		hists = cell(length(selected_classes), 1);	
-		labels = cell(length(selected_classes), 1);
-		
-		for ii = 1:length(selected_classes),
-			class_name = selected_classes{ii};
-			selected_img_idx = imdb.(class_name);
-			
-			feat_file = fullfile(fea_dir, [class_name, '.mat']);
-			fprintf(' [%d/%d] loading feature file...\n', ii, length(selected_classes));
-			codes = load(feat_file, 'codes');
-			
-			selected_img_feats = codes.codes(selected_img_idx);
-			selected_img_feats = cat(2, selected_img_feats{:});
-			
-			%% removing NaN entries
-			selected_img_feats(:, any(isnan(selected_img_feats), 1)) = [];
-			
-			hists{ii} = selected_img_feats; 
-			labels{ii} = ii*ones(size(selected_img_feats, 2), 1);
-		end
-		
-		hists = cat(2, hists{:});
-		labels = cat(1, labels{:});
-		
-		fprintf('Saving hists and labels...\n');
-		if ~exist(fileparts(hists_file), 'file'),
-			mkdir(fileparts(hists_file));
-		end
-		save(hists_file, 'hists', '-v7.3');
-		save(labels_file, 'labels');
-		
+	if ~exist(hists_file, 'file') && exist(labels_file, 'file'),
+		error();
 	end
 	
-	if ~exist(train_ker_file, 'file'),	
-		fprintf('Calculating training ker using l2 distances...\n');
-		train_ker = hists' * hists ;
+	fprintf('Loading hists...\n');
+	hists = load(hists_file, 'hists');
+	labels = load(labels_file, 'labels');
+	
+	hists = hists.hists;
+	labels = labels.labels;
 		
-		fprintf('Saving training ker...\n');
-		save(train_ker_file, 'train_ker', '-v7.3');
-	else
-		train_ker = load(train_ker_file, 'train_ker');
-		train_ker = train_ker.train_ker;
+	if ~exist(train_ker_file, 'file'),	
+		error();
 	end
+
+	fprintf('Loading pre-computed kernels...\n');
+	train_ker = load(train_ker_file, 'train_ker');
+	train_ker = train_ker.train_ker;
 	
 	labels = double(labels);
 	train_ker = double(train_ker);
 	
-	fprintf('preparing labels...\n');
+	fprintf('Preparing labels...\n');
 	all_labels = zeros(M, length(labels));
 
     for ii = 1:length(labels),
@@ -90,14 +77,6 @@ function calker_train_examples(M, N, R, start_class, end_class)
                 all_labels(jj, ii) = -1;
             end
         end
-    end
-	
-	if ~exist('start_class', 'var') || start_class < 1,
-        start_class = 1;
-    end
-    
-    if ~exist('end_class', 'var') || end_class > M,
-        end_class = M;
     end
 	
 	fprintf('start training...\n');
@@ -122,13 +101,22 @@ function calker_train_examples(M, N, R, start_class, end_class)
 						   ...%'C', 10,            ...
 						   'verbosity', 0,     ...
 						   ...%'rbf', 1,           ...
-						   'crossvalidation', 5, ...
+						   'crossvalidation', cv, ...
+						   'C',	C, ...
 						   'weights', [+1 posWeight ; -1 1]') ;
 		
 		svm = svmflip(svm, labels);	
 		
-		if 1, % test_on_train
+		if test_on_train, % test_on_train
 			
+			if ~exist(hists_file, 'file') && exist(labels_file, 'file'),
+				error();
+			end
+	
+			fprintf('Loading hists...\n');
+			hists = load(hists_file, 'hists');
+			hists = hists.hists;
+	
 			scores = svm.alphay' * hists(svm.svind, :) + svm.b ;
 			errs = scores .* labels < 0 ;
 			err  = mean(errs) ;

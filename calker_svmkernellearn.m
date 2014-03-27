@@ -278,8 +278,7 @@ end
 % --------------------------------------------------------------------
 
 if C < 0.0001,
-	C
-	C = 1;
+	warning('C value is too small! [%f] \n', C);
 end
 
 switch lower(type)
