@@ -241,11 +241,13 @@ if cross
     % best C
     [maxacc, best] = max(acc_range) ;
     sel           = find(acc_range == maxacc) ;
-	[~, pick] = min(abs(sel - median(sel)));		% get the median value
 	
     %pick          = (max(sel)+min(sel)) / 2 ;
     %pick          = min(sel) ;
+	[~, median_idx] = min(abs(sel - median(sel)));		% get the median value
+	pick = sel(median_idx);
     val           = val_range(pick) ;
+	fprintf('Selected values: maxacc = %f, pick = %d, C = %f \n', maxacc, pick, C);
     
     switch lower(type)
       case 'c'
