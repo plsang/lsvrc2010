@@ -2,6 +2,8 @@
 %% M classes, N images, R: random number
 function calker_train_examples(M, N, R, varargin)
 	
+	set_env;
+	
 	test_on_train = 0;
 	start_class = 1;
 	end_class = M;

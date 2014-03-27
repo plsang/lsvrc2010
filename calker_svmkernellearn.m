@@ -200,7 +200,11 @@ if cross
   end
   switch lower(type)
     case 'c'
-      val_range = logspace(-5,+5,11) ;
+      %val_range = logspace(-5,+5,11) ;
+	  val_range_idx = [-5:+5];
+	  val_range = arrayfun(@(x) 4^x, val_range_idx);
+	  val_range
+	  
     case 'nu'
       val_range = logspace(-10,-0.0001,11) ;
   end
@@ -235,10 +239,12 @@ if cross
     end
     
     % best C
-    [maxacc,best] = max(acc_range) ;
+    [maxacc, best] = max(acc_range) ;
     sel           = find(acc_range == maxacc) ;
+	[~, pick] = min(abs(sel - median(sel)));		% get the median value
+	
     %pick          = (max(sel)+min(sel)) / 2 ;
-    pick          = min(sel) ;
+    %pick          = min(sel) ;
     val           = val_range(pick) ;
     
     switch lower(type)
@@ -247,14 +253,6 @@ if cross
       case 'nu'
         nu = val ;
     end
-
-    semilogx(val_range, acc_range, '.-', 'Linewidth', 2*zz+1) ;
-    hold on ;
-    title('Cross validation') ; 
-    xlabel('C value') ;
-    ylabel('N-fold cross-validation error') ;
-    grid on ;
-    drawnow ;
 
     zz = zz + 1;
     % stop ?
@@ -267,8 +265,11 @@ if cross
         break;
     end
     
-    step = log10(val_range(2)) - log10(val_range(1)) ;
-    val_range = logspace(log10(val) - 2*step, log10(val) + 2*step, 11) ;
+    step = log10(val_range(2)) - log10(val_range(1));
+    %val_range = logspace(log10(val) - 2*step, log10(val) + 2*step, 11) ;
+	val_range_idx = [val_range_idx(pick)-5:val_range_idx(pick)+5];
+	val_range = arrayfun(@(x) 2^x, val_range_idx);
+	val_range
     
   end
 end
