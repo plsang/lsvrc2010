@@ -56,7 +56,7 @@ function calker_test_on_MED(M, N, R)
 		mkdir(output_dir);
 	end
 	
-	for ii=1:length(clips),
+	parfor ii=1:length(clips),
 		fprintf('%d/%d clips processed...\n', ii, length(clips));
 		clip_name = clips{ii};
 		clip_att_fea_file = sprintf('%s/%s.mat', output_dir, clip_name);
@@ -105,8 +105,12 @@ function calker_test_on_MED(M, N, R)
 		end
 		
 		code = mean(scores, 2);
-		save(clip_att_fea_file, 'code');
+		par_save(clip_att_fea_file, 'code');
 		
 	end
 	
 end	
+
+function par_save( output_file, code )
+  save( output_file, 'code');
+end
