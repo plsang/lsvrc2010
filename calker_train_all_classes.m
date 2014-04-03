@@ -8,7 +8,7 @@ function calker_train_all_classes(M, N, R, varargin)
 	end_class = M;
 	cv = 0;	% cross validation
 	C = 1;	% C parameter for SVM
-	Nm = 10000; % max negative
+	MaxNeg = 10000; % max negative
 	
 	for k=1:2:length(varargin),
 	
@@ -24,6 +24,8 @@ function calker_train_all_classes(M, N, R, varargin)
 				cv = arg ;
 			case 'C' ;
 				C = arg ;
+			case 'maxneg'
+				MaxNeg = arg ;
 			otherwise
 				error(sprintf('Option ''%s'' unknown.', opt)) ;
 		end  
@@ -88,37 +90,51 @@ function calker_train_all_classes(M, N, R, varargin)
 	for kk = start_class:end_class,
 		class_name = selected_classes{kk};
 	
-        model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_rand%dc_%di/r%d/models/%s.mat', M, N, R, class_name);
+        model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_rand%dc_%di/r%d/models-%d/%s.mat', M, N, R, MaxNeg, class_name);
 		
 		if exist(model_file, 'file'),
 			fprintf('Skipped training %s \n', model_file);
 			continue;
 		end
 		
-		fprintf('[%d/%d] Training class ''%s''...\n', kk - start_class + 1, end_class - end_class + 1, class_name);	
+		fprintf('[%d/%d] Training class ''%s''...\n', kk - start_class + 1, end_class - start_class + 1, class_name);	
 		
 		labels = double(all_labels(kk,:));
 		labels = labels(nonzero_idx);	% Removing all-zero indexes
 		
-		neg_idx = find(labels == -1);
-		pos_idx = find(labels == 1);
-		
-		ridx = randperm(length(neg_idx));
-		r_neg_idx = neg_idx(ridx(1:Nm));
-		r_train_idx = [pos_idx, r_neg_idx];
-		
-		%posWeight = ceil(length(find(labels == -1))/length(find(labels == 1)));
-		posWeight = ceil(length(r_neg_idx)/length(pos_idx));
-		
 		fprintf('SVM learning with predefined kernel matrix...\n');
-		svm = calker_svmkernellearn(train_ker(r_train_idx, r_train_idx), labels(r_train_idx),   ...
-						   'type', 'C',        ...
-						   ...%'C', 10,            ...
-						   'verbosity', 1,     ...
-						   ...%'rbf', 1,           ...
-						   'crossvalidation', cv, ...
-						   'C',	C, ...
-						   'weights', [+1 posWeight ; -1 1]') ;
+		
+		if MaxNeg ~= 0, %% subsample negative
+			neg_idx = find(labels == -1);
+			pos_idx = find(labels == 1);
+			
+			ridx = randperm(length(neg_idx));
+			r_neg_idx = neg_idx(ridx(1:MaxNeg));
+			r_train_idx = [pos_idx, r_neg_idx];
+			
+			%posWeight = ceil(length(find(labels == -1))/length(find(labels == 1)));
+			posWeight = ceil(length(r_neg_idx)/length(pos_idx));
+						
+			svm = calker_svmkernellearn(train_ker(r_train_idx, r_train_idx), labels(r_train_idx),   ...
+							   'type', 'C',        ...
+							   ...%'C', 10,            ...
+							   'verbosity', 1,     ...
+							   ...%'rbf', 1,           ...
+							   'crossvalidation', cv, ...
+							   'C',	C, ...
+							   'weights', [+1 posWeight ; -1 1]') ;
+		else	%% all negatives
+			posWeight = ceil(length(find(labels == -1))/length(find(labels == 1)));
+			
+			svm = calker_svmkernellearn(train_ker, labels,   ...
+							   'type', 'C',        ...
+							   ...%'C', 10,            ...
+							   'verbosity', 1,     ...
+							   ...%'rbf', 1,           ...
+							   'crossvalidation', cv, ...
+							   'C',	C, ...
+							   'weights', [+1 posWeight ; -1 1]') ;
+		end
 		
 		svm = svmflip(svm, labels(r_train_idx));	
 		
