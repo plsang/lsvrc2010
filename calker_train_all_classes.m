@@ -8,6 +8,7 @@ function calker_train_all_classes(M, N, R, varargin)
 	end_class = M;
 	cv = 0;	% cross validation
 	C = 1;	% C parameter for SVM
+	Nm = 10000; % max negative
 	
 	for k=1:2:length(varargin),
 	
@@ -44,18 +45,18 @@ function calker_train_all_classes(M, N, R, varargin)
 	
 	fprintf('Initializing pre-computed kernels...\n');
 	
-	Ns = N / 2;
-	train_ker = zeros(M*Ns, M*Ns);
+
+	train_ker = zeros(M*N, M*N);
 	
 	fprintf('Initializing labels...\n');
-	all_labels = -ones(M, M*Ns);
+	all_labels = -ones(M, M*N);
 	
-	fprintf('Loading pre-computed kernels...\n');
+	fprintf('Assembling pre-computed kernels...\n');
 	
 	label_idx = 0;
 	
-	img_idx = [1:M*N];
-	img_idx = find(mod(img_idx, N) <= Ns & mod(img_idx, N) > 0);
+	%img_idx = [1:M*N];
+	%img_idx = find(mod(img_idx, N) <= Ns & mod(img_idx, N) > 0);
 	
 	for kk = 1:length(selected_classes),
 		if mod(kk, 10) == 0, fprintf('%d ', kk); end;
@@ -65,14 +66,20 @@ function calker_train_all_classes(M, N, R, varargin)
 		
 		ker_kk = load(ker_file, 'kers');
 		
-		pos_idx = label_idx + [1:Ns]; 
+		pos_idx = label_idx + [1:N]; 
 		
-		train_ker(pos_idx, :) = ker_kk.kers([1:Ns], img_idx);
+		train_ker(pos_idx, :) = ker_kk.kers;
 		
 		all_labels(kk, pos_idx) = 1;
 		
-		label_idx = label_idx + Ns;
+		label_idx = label_idx + N;
 	end
+
+	
+	fprintf('Removing all-zero indexes...\n');
+	nonzero_idx = any(train_ker, 1);
+	train_ker = train_ker(nonzero_idx, nonzero_idx); 
+
 	
 	%labels = double(labels);
 	%train_ker = double(train_ker);
@@ -91,11 +98,20 @@ function calker_train_all_classes(M, N, R, varargin)
 		fprintf('[%d/%d] Training class ''%s''...\n', kk - start_class + 1, end_class - end_class + 1, class_name);	
 		
 		labels = double(all_labels(kk,:));
+		labels = labels(nonzero_idx);	% Removing all-zero indexes
 		
-		posWeight = ceil(length(find(labels == -1))/length(find(labels == 1)));
+		neg_idx = find(labels == -1);
+		pos_idx = find(labels == 1);
+		
+		ridx = randperm(length(neg_idx));
+		r_neg_idx = neg_idx(ridx(1:Nm));
+		r_train_idx = [pos_idx, r_neg_idx];
+		
+		%posWeight = ceil(length(find(labels == -1))/length(find(labels == 1)));
+		posWeight = ceil(length(r_neg_idx)/length(pos_idx));
 		
 		fprintf('SVM learning with predefined kernel matrix...\n');
-		svm = calker_svmkernellearn(train_ker, labels,   ...
+		svm = calker_svmkernellearn(train_ker(r_train_idx, r_train_idx), labels(r_train_idx),   ...
 						   'type', 'C',        ...
 						   ...%'C', 10,            ...
 						   'verbosity', 1,     ...
@@ -104,7 +120,7 @@ function calker_train_all_classes(M, N, R, varargin)
 						   'C',	C, ...
 						   'weights', [+1 posWeight ; -1 1]') ;
 		
-		svm = svmflip(svm, labels);	
+		svm = svmflip(svm, labels(r_train_idx));	
 		
 		fprintf('\tSaving model ''%s''.\n', model_file) ;
 		if ~exist(fileparts(model_file), 'file'),
