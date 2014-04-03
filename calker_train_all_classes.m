@@ -10,6 +10,8 @@ function calker_train_all_classes(M, N, R, varargin)
 	C = 1;	% C parameter for SVM
 	MaxNeg = 10000; % max negative
 	
+	rand_ann = 0;
+	
 	for k=1:2:length(varargin),
 	
 		opt = lower(varargin{k});
@@ -26,6 +28,8 @@ function calker_train_all_classes(M, N, R, varargin)
 				C = arg ;
 			case 'maxneg'
 				MaxNeg = arg ;
+			case 'randann'
+				rand_ann = arg;
 			otherwise
 				error(sprintf('Option ''%s'' unknown.', opt)) ;
 		end  
@@ -90,7 +94,11 @@ function calker_train_all_classes(M, N, R, varargin)
 	for kk = start_class:end_class,
 		class_name = selected_classes{kk};
 	
-        model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_rand%dc_%di/r%d/models-%d/%s.mat', M, N, R, MaxNeg, class_name);
+		if rand_ann == 1,
+			model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_rand%dc_%di/r%d/rand-models-%d/%s.mat', M, N, R, MaxNeg, class_name);
+		else
+			model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_rand%dc_%di/r%d/models-%d/%s.mat', M, N, R, MaxNeg, class_name);
+		end
 		
 		if exist(model_file, 'file'),
 			fprintf('Skipped training %s \n', model_file);
@@ -105,12 +113,27 @@ function calker_train_all_classes(M, N, R, varargin)
 		fprintf('SVM learning with predefined kernel matrix...\n');
 		
 		if MaxNeg ~= 0, %% subsample negative
-			neg_idx = find(labels == -1);
-			pos_idx = find(labels == 1);
-			
-			ridx = randperm(length(neg_idx));
-			r_neg_idx = neg_idx(ridx(1:MaxNeg));
-			r_train_idx = [pos_idx, r_neg_idx];
+			if rand_ann == 1,
+				neg_idx = find(labels == -1);
+				pos_idx = find(labels == 1);
+				
+				r_pos_idx = randperm(length(labels));
+				r_pos_idx = r_pos_idx(1:length(pos_idx));
+				
+				r_neg_idx = setdiff(1:length(labels), r_pos_idx);
+				ridx = randperm(length(r_neg_idx));
+				r_neg_idx = r_neg_idx(ridx(1:MaxNeg));
+				
+				r_train_idx = [r_pos_idx, r_neg_idx];
+				
+			else
+				neg_idx = find(labels == -1);
+				pos_idx = find(labels == 1);
+				
+				ridx = randperm(length(neg_idx));
+				r_neg_idx = neg_idx(ridx(1:MaxNeg));
+				r_train_idx = [pos_idx, r_neg_idx];
+			end
 			
 			%posWeight = ceil(length(find(labels == -1))/length(find(labels == 1)));
 			posWeight = ceil(length(r_neg_idx)/length(pos_idx));
