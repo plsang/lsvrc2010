@@ -17,7 +17,7 @@ function code = sift_do_encoding(enc_type, feats, codebook, kdtree, low_proj)
 			
 			max_comps = 500;
 			num_nn = 5;
-			sigma = 45;
+			sigma = 0.2; % sigma = 1/(sqrt(2*beta)), beta = 10 in LCS paper [Liu-ICCV2011]
 			kcb_type = 'unc';
 								
 			if max_comps ~= 1,
