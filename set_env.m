@@ -8,6 +8,12 @@ run('/net/per900a/raid0/plsang/tools/vlfeat-0.9.16/toolbox/vl_setup');
 % libsvm
 addpath('/net/per900a/raid0/plsang/tools/libsvm-3.12/matlab');
 
+%enceval toolkit
+addpath('/net/per610a/export/das11f/plsang/codes/libs/enceval-toolkit-1.1');
+
+% liblinear
+addpath('/net/per900a/raid0/plsang/libs/liblinear-1.94/matlab');
+
 % voicebox
 addpath('/net/per900a/raid0/plsang/tools/voicebox');
 
