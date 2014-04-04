@@ -1,16 +1,37 @@
 %testset: KINDREDTEST (14464 clips), MEDTEST (27033 clips)
-function calker_test_on_MED(M, N, R)
+function calker_test_on_MED(M, N, R, varargin)
 	
 	set_env;
-		
+	
+	start_class = 1;
+	end_class = M;
+
+	for k=1:2:length(varargin),	
+		opt = lower(varargin{k});
+		arg = varargin{k+1} ;
+		switch opt
+			case 's'
+				start_class = arg ;
+			case 'e' ;
+				end_class = arg ;
+			otherwise
+				error(sprintf('Option ''%s'' unknown.', opt)) ;
+		end  
+	end
+	
 	%% dataset
 	fprintf('Loading metadata...\n');
-	medmd_file = sprintf('/net/per610a/export/das11f/plsang/trecvidmed13/metadata/common/metadata_devel.mat');
-	metadata = load(medmd_file, 'metadata');
-	metadata = metadata.metadata;
+	%medmd_file = sprintf('/net/per610a/export/das11f/plsang/trecvidmed13/metadata/common/metadata_devel.mat');
+	%metadata = load(medmd_file, 'metadata');
+	%metadata = metadata.metadata;
+	%clips = fieldnames(metadata);  % 60614 clips
+	%clear metadata;
 	
-	clips = fieldnames(metadata);
-	clear metadata;
+	medmd_file = '/net/per610a/export/das11f/plsang/trecvidmed13/metadata/medmd.mat';
+	load(medmd_file, 'MEDMD'); 
+	
+	clips = [MEDMD.EventKit.EK130Ex.clips, MEDMD.EventBG.default.clips, MEDMD.RefTest.KINDREDTEST.clips, MEDMD.RefTest.MEDTEST.clips];
+	clips = unique(clips);	% 48396 clips
 	
 	imdb_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/imdb.mat', M, N, R);
 	if ~exist(imdb_file, 'file'),
@@ -56,8 +77,8 @@ function calker_test_on_MED(M, N, R)
 		mkdir(output_dir);
 	end
 	
-	parfor ii=1:length(clips),
-		fprintf('%d/%d clips processed...\n', ii, length(clips));
+	for ii=start_class:end_class,
+		fprintf('%d/%d clips processed...\n', ii-start_class + 1, end_class - start_class + 1);
 		clip_name = clips{ii};
 		clip_att_fea_file = sprintf('%s/%s.mat', output_dir, clip_name);
 		if exist(clip_att_fea_file, 'file'),
@@ -105,7 +126,7 @@ function calker_test_on_MED(M, N, R)
 		end
 		
 		code = mean(scores, 2);
-		par_save(clip_att_fea_file, 'code');
+		par_save(clip_att_fea_file, code);
 		
 	end
 	
