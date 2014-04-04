@@ -1,10 +1,12 @@
 %testset: KINDREDTEST (14464 clips), MEDTEST (27033 clips)
+% 48396 
 function calker_test_on_MED(M, N, R, varargin)
 	
 	set_env;
 	
 	start_class = 1;
 	end_class = M;
+	randann = 0;
 
 	for k=1:2:length(varargin),	
 		opt = lower(varargin{k});
@@ -14,6 +16,8 @@ function calker_test_on_MED(M, N, R, varargin)
 				start_class = arg ;
 			case 'e' ;
 				end_class = arg ;
+			case 'randann'
+				randann = arg;	
 			otherwise
 				error(sprintf('Option ''%s'' unknown.', opt)) ;
 		end  
@@ -54,7 +58,11 @@ function calker_test_on_MED(M, N, R, varargin)
 		
 		class_name = selected_classes{kk};
 		
-		model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_rand%dc_%di/r%d/models/%s.mat', M, N, R, class_name);
+		if randann == 0,
+			model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_rand%dc_%di/r%d/models/%s.mat', M, N, R, class_name);
+		else
+			model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_rand%dc_%di/r%d/rand-models/%s.mat', M, N, R, class_name);
+		end
 		
 		if ~exist(model_file, 'file'),
 			error();
@@ -71,7 +79,11 @@ function calker_test_on_MED(M, N, R, varargin)
 	end
 	
 	output_dir = '/net/per610a/export/das11f/plsang/LSVRC2010/feature/covdet.hessian.sift.cb256.pca80.fisher';
-	output_dir = sprintf('%s.att.M%d.N%d.R%d/devel', output_dir, M, N, R);
+	if randann == 0,
+		output_dir = sprintf('%s.att.M%d.N%d.R%d/devel', output_dir, M, N, R);
+	else
+		output_dir = sprintf('%s.att.M%d.N%d.R%d.randann/devel', output_dir, M, N, R);
+	end
 	
 	if ~exist(output_dir, 'file'),
 		mkdir(output_dir);
@@ -111,7 +123,6 @@ function calker_test_on_MED(M, N, R, varargin)
 		
 		scores = zeros(M, size(codes, 2)); % M x Nt
 		
-		
 		for jj = 1:M,
 			class_name = selected_classes{jj};
 			
@@ -129,6 +140,8 @@ function calker_test_on_MED(M, N, R, varargin)
 		par_save(clip_att_fea_file, code);
 		
 	end
+	
+	quit;
 	
 end	
 
