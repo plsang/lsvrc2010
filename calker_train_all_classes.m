@@ -9,6 +9,7 @@ function calker_train_all_classes(M, N, R, varargin)
 	cv = 0;	% cross validation
 	C = 1;	% C parameter for SVM
 	MaxNeg = 10000; % max negative
+	fea_pat = 'covdet.hessian.sift.cb256.pca80.fisher';
 	
 	rand_ann = 0;
 	
@@ -30,6 +31,8 @@ function calker_train_all_classes(M, N, R, varargin)
 				MaxNeg = arg ;
 			case 'randann'
 				rand_ann = arg;
+			case 'fea'
+				fea_pat = arg;	
 			otherwise
 				error(sprintf('Option ''%s'' unknown.', opt)) ;
 		end  
@@ -47,7 +50,7 @@ function calker_train_all_classes(M, N, R, varargin)
 	selected_classes = fieldnames(imdb);	
 	
 	ker_root_dir = '/net/per610a/export/das11f/plsang/LSVRC2010/kernels/train';
-	ker_dir = sprintf('%s/lsvrc2010_rand%dc_%di/r%d', ker_root_dir, M, N, R);
+	ker_dir = sprintf('%s/lsvrc2010_rand%dc_%di/%s/r%d', ker_root_dir, M, N, fea_pat, R);
 	
 	fprintf('Initializing pre-computed kernels...\n');
 	

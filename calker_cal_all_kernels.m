@@ -4,11 +4,9 @@ function calker_cal_all_kernels(M, N, R, varargin)
 	
 	szPat = 'train';
 	ker_root_dir = '/net/per610a/export/das11f/plsang/LSVRC2010/kernels/train';
-	ker_dir = sprintf('%s/lsvrc2010_rand%dc_%di/r%d', ker_root_dir, M, N, R);
+	fea_pat = 'covdet.hessian.sift.cb256.pca80.fisher';
 	
-	if ~exist(ker_dir, 'file'),
-		mkdir(ker_dir);
-	end
+	imagenet_pat = 'train';
 	
 	imdb_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/imdb.mat', M, N, R);
 	
@@ -21,10 +19,6 @@ function calker_cal_all_kernels(M, N, R, varargin)
 	imdb = imdb.imdb;
 
 	train_classes = fieldnames(imdb);
-		
-	%% loading features
-	fea_dir = '/net/per610a/export/das11f/plsang/LSVRC2010/feature/covdet.hessian.sift.cb256.pca80.fisher/train';
-	
 		
 	root_kf_dir = '/net/per610a/export/das09f/satoh-lab/dungmt/DataSet/LSVRC/2010/image';
 	kf_dir = sprintf('%s/%s', root_kf_dir, szPat);
@@ -45,9 +39,19 @@ function calker_cal_all_kernels(M, N, R, varargin)
 				start_class = arg ;
 			case 'e' ;
 				end_class = arg ;
+			case 'fea'
+				fea_pat = arg;
 			otherwise
 				error(sprintf('Option ''%s'' unknown.', opt)) ;
 		end  
+	end
+	
+		%% loading features
+	root_fea_dir = '/net/per610a/export/das11f/plsang/LSVRC2010/feature';	
+	fea_dir = sprintf('%s/%s/%s', root_fea_dir, fea_pat, imagenet_pat);
+	ker_dir = sprintf('%s/lsvrc2010_rand%dc_%di/%s/r%d', ker_root_dir, M, N, fea_pat, R);
+	if ~exist(ker_dir, 'file'),
+		mkdir(ker_dir);
 	end
 	
 	codes = cell(length(train_classes));
@@ -96,7 +100,7 @@ function calker_cal_all_kernels(M, N, R, varargin)
 					
 		end
 		
-		fprintf('[%d/%d] Concatenating kernels into a single matrix...', ii - start_class + 1, end_class - start_class + 1);
+		fprintf('[%d/%d] Concatenating kernels into a single matrix...\n', ii - start_class + 1, end_class - start_class + 1);
 		kers = cat(2, kers{:});
 		save( ker_file, 'kers', '-v7.3');
 		%save( ker_file, 'kers');
