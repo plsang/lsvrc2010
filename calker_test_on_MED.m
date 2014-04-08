@@ -8,6 +8,8 @@ function calker_test_on_MED(M, N, R, varargin)
 	end_class = M;
 	randann = 0;
 
+	fea_pat = 'covdet.hessian.sift.cb256.pca80.fisher';
+	
 	for k=1:2:length(varargin),	
 		opt = lower(varargin{k});
 		arg = varargin{k+1} ;
@@ -18,6 +20,8 @@ function calker_test_on_MED(M, N, R, varargin)
 				end_class = arg ;
 			case 'randann'
 				randann = arg;	
+			case 'fea'
+				fea_pat = arg;	
 			otherwise
 				error(sprintf('Option ''%s'' unknown.', opt)) ;
 		end  
@@ -59,13 +63,13 @@ function calker_test_on_MED(M, N, R, varargin)
 		class_name = selected_classes{kk};
 		
 		if randann == 0,
-			model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_rand%dc_%di/r%d/models/%s.mat', M, N, R, class_name);
+			model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_M%d_N%d_R%d/%s/models/%s.mat', M, N, R, fea_pat, class_name);
 		else
-			model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_rand%dc_%di/r%d/rand-models/%s.mat', M, N, R, class_name);
+			model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_M%d_N%d_R%d/%s/models-r%d/%s.mat', M, N, R, fea_pat, randann, class_name);
 		end
 		
 		if ~exist(model_file, 'file'),
-			error();
+			error('File not found [%s]\n', model_file);
 		end
 		
 		svm = load(model_file, 'svm'); 
@@ -78,11 +82,13 @@ function calker_test_on_MED(M, N, R, varargin)
 		
 	end
 	
-	output_dir = '/net/per610a/export/das11f/plsang/LSVRC2010/feature/covdet.hessian.sift.cb256.pca80.fisher';
+	med_output_dir = '/net/per610a/export/das11f/plsang/trecvidmed13/feature/segment-100000';
+	output_dir = sprintf('%s/%s', med_output_dir, fea_pat);
+	
 	if randann == 0,
-		output_dir = sprintf('%s.att.M%d.N%d.R%d/devel', output_dir, M, N, R);
+		output_dir = sprintf('%s.att.M%d.N%d.R%d.labelled/devel', output_dir, M, N, R);
 	else
-		output_dir = sprintf('%s.att.M%d.N%d.R%d.randann/devel', output_dir, M, N, R);
+		output_dir = sprintf('%s.att.M%d.N%d.R%d.r%d/devel', output_dir, M, N, R, randann);
 	end
 	
 	if ~exist(output_dir, 'file'),
