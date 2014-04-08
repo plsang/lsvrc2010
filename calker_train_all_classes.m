@@ -146,7 +146,6 @@ function calker_train_all_classes(M, N, R, varargin)
 				continue;
 			end
 			
-			neg_idx = find(labels == -1);
 			pos_idx = find(labels == 1);
 			
 			r_pos_idx = randperm(length(labels));
@@ -157,6 +156,9 @@ function calker_train_all_classes(M, N, R, varargin)
 			r_neg_idx = r_neg_idx(ridx(1:MaxNeg));
 			
 			r_train_idx = [r_pos_idx, r_neg_idx];
+			
+			labels(r_pos_idx) = 1;
+			labels(r_neg_idx) = -1;
 			
 			posWeight = ceil(length(r_neg_idx)/length(pos_idx));
 						
