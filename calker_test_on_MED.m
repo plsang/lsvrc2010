@@ -82,7 +82,7 @@ function calker_test_on_MED(M, N, R, varargin)
 		
 	end
 	
-	med_output_dir = '/net/per610a/export/das11f/plsang/trecvidmed13/feature/segment-100000';
+	med_output_dir = '/net/per610a/export/das11f/plsang/trecvidmed13/feature/segment-att';
 	output_dir = sprintf('%s/%s', med_output_dir, fea_pat);
 	
 	if randann == 0,

@@ -181,4 +181,6 @@ function calker_train_all_classes(M, N, R, varargin)
 			
 		end
 	end
+	
+	quit;
 end
