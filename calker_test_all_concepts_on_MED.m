@@ -58,7 +58,7 @@ function calker_test_all_concepts_on_MED(M, N, R, C, varargin)
 		models.(class_name).svind = svm.svind;
 		models.(class_name).alphay = svm.alphay;
 		models.(class_name).b = svm.b;
-		models.(class_name).libsvm_cl = svm.libsvm_cl;
+		%models.(class_name).libsvm_cl = svm.libsvm_cl;
 		
 	end
 	
@@ -115,7 +115,7 @@ function calker_test_all_concepts_on_MED(M, N, R, C, varargin)
 		end
 		
 		code = mean(scores, 2);
-		save(clip_att_fea_file, code);
+		save(clip_att_fea_file, 'code');
 		
 	end
 	
