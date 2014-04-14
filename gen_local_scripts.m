@@ -1,4 +1,4 @@
-function gen_local_scripts(script_name, pattern, total_jobs, num_processes, machine)
+function gen_local_scripts(script_name, pattern, total_jobs, num_processes, start_num, machine)
 	
 	script_dir = '/net/per610a/export/das11f/plsang/codes/lsvrc2010';
 	
@@ -6,9 +6,11 @@ function gen_local_scripts(script_name, pattern, total_jobs, num_processes, mach
 	
 	script_file = sprintf('%s/%s.sh', script_dir, script_name);
 	
-	start_num = 1;	
+	if ~exist('start_num', 'var'),
+		start_num = 1;
+	end
 	
-	num_per_job = ceil((total_jobs - start_num + 1)/num_processes);	
+	num_per_job = ceil(total_jobs/num_processes);	
 	
 	fh = fopen(script_file, 'w');
 	
@@ -22,15 +24,15 @@ function gen_local_scripts(script_name, pattern, total_jobs, num_processes, mach
 		start_idx = start_num + (ii-1)*num_per_job;
 		end_idx = start_num + ii*num_per_job - 1;
 		
-		if(end_idx > total_jobs)
-			end_idx = total_jobs;
+		if(end_idx - start_num + 1 > total_jobs)
+			end_idx = total_jobs + start_num - 1;
 		end
 		
 		params = sprintf(pattern, start_idx, end_idx);
 		%fprintf(fh, 'qsub -e /dev/null -o /dev/null %s %s\n', script_file, params);
 		fprintf(fh, 'matlab -nodisplay -r "%s(%s)" &\n', script_name, params);
 		
-		if end_idx == total_jobs, break; end;
+		if end_idx == total_jobs + start_num - 1, break; end;
 	end
 	
 	cmd = sprintf('chmod +x %s', script_file);
