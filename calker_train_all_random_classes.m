@@ -8,11 +8,12 @@ function calker_train_all_random_classes(M, N, R, varargin)
 	end_class = M;
 	cv = 0;	% cross validation
 	C = 1;	% C parameter for SVM
-	MaxPos = 100;
-	MaxNeg = 10000; % max negative
+	
 	fea_pat = 'covdet.hessian.sift.cb256.pca80.fisher';
 	
-	rand_ann = 5;
+	Pos = 100;
+	Neg = 10000;
+	num_concept = 10000;
 	
 	for k=1:2:length(varargin),
 	
@@ -26,12 +27,12 @@ function calker_train_all_random_classes(M, N, R, varargin)
 				end_class = arg ;
 			case 'cv' ;
 				cv = arg ;
-			case 'C' ;
-				C = arg ;
-			case 'maxneg'
-				MaxNeg = arg ;
-			case 'randann'
-				rand_ann = arg;
+			case 'pos' ;
+				Pos = arg ;
+			case 'neg' ;
+				Neg = arg ;
+			case 'nc' ;
+				num_concept = arg ;	
 			case 'fea'
 				fea_pat = arg;	
 			otherwise
@@ -87,9 +88,7 @@ function calker_train_all_random_classes(M, N, R, varargin)
 	train_ker = train_ker(nonzero_idx, nonzero_idx); 
 	labels = double(labels(nonzero_idx));
 	
-	size(nonzero_idx)
-	
-	label_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/labels_P%05d.mat', M, N, R, MaxPos);
+	label_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/labels_C%05d_P%05d_N%05d.mat', M, N, R, num_concept, Pos, Neg);
 	if ~exist(label_file, 'file'),
 		error();
 	end
@@ -105,7 +104,8 @@ function calker_train_all_random_classes(M, N, R, varargin)
 		
 		fprintf('Learning random unlabelled models...\n');
 		
-		rand_model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_M%d_N%d_R%d/%s/all-random-models/%s.mat', M, N, R, fea_pat, class_name);
+		rand_model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_M%d_N%d_R%d/%s/random_models_C%05d_P%05d_N%05d/%s.mat', ...
+			M, N, R, fea_pat, num_concept, Pos, Neg, class_name);
 		
 		if exist(rand_model_file, 'file'),
 			fprintf('Skipped training %s \n', rand_model_file);
@@ -121,9 +121,6 @@ function calker_train_all_random_classes(M, N, R, varargin)
 		labels(r_neg_idx) = -1;
 		
 		posWeight = ceil(length(r_neg_idx)/length(r_pos_idx));
-					
-		size(train_ker)
-		size(labels)
 		
 		svm = calker_svmkernellearn(train_ker(r_train_idx, r_train_idx), labels(r_train_idx),   ...
 						   'type', 'C',        ...

@@ -1,0 +1,1 @@
+qsub -e /net/per610a/export/das11f/plsang/codes/lsvrc2010/log/error.log -o /net/per610a/export/das11f/plsang/codes/lsvrc2010/log/out.log /net/per610a/export/das11f/plsang/codes/lsvrc2010/calker_test_all_concepts_on_MED.sh 1000 100 1 10000 'S' 1 'E' 1

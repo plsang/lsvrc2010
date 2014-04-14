@@ -1,6 +1,6 @@
 %testset: KINDREDTEST (14464 clips), MEDTEST (27033 clips)
 % 48396 
-function calker_test_all_concepts_on_MED(M, N, R, C, varargin)
+function calker_test_all_concepts_on_MED(M, N, R, C, Pos, Neg, varargin)
 	
 	%% C: num concept
 	set_env;
@@ -46,7 +46,7 @@ function calker_test_all_concepts_on_MED(M, N, R, C, varargin)
 		
 		class_name = sprintf('random_class_%05d', kk);
 		
-		model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_M%d_N%d_R%d/%s/%d-random-models/%s.mat', M, N, R, fea_pat, C, class_name);
+		model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_M%d_N%d_R%d/%s/random_models_C%05d_P%05d_N%05d/%s.mat', M, N, R, fea_pat, C, Pos, Neg, class_name);
 		
 		if ~exist(model_file, 'file'),
 			error('File not found [%s]\n', model_file);
@@ -65,7 +65,7 @@ function calker_test_all_concepts_on_MED(M, N, R, C, varargin)
 	med_output_dir = '/net/per610a/export/das11f/plsang/trecvidmed13/feature/segment-att';
 	output_dir = sprintf('%s/%s', med_output_dir, fea_pat);
 	
-	output_dir = sprintf('%s.att.M%d.N%d.R%d.C%d/devel', output_dir, M, N, R, C);
+	output_dir = sprintf('%s.att.M%d.N%d.R%d.C%d.P%05d.N%05d/devel', output_dir, M, N, R, C, Pos, Neg);
 	
 	if ~exist(output_dir, 'file'),
 		mkdir(output_dir);

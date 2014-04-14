@@ -56,10 +56,11 @@ function calker_generate_random_classes(M, N, R, NumConcept)
 	fprintf('Start generating...\n');
 	
 	
-	PosSet = [10, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000, 3000, 4000, 5000];
+	%PosSet = [10, 100, 200, 300, 400, 500, 1000];
+	PosSet = [10];
 	
 	for NumPos = PosSet,
-		label_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/labels_P%05d_N%05d.mat', M, N, R, NumPos, MaxNeg);
+		label_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/labels_C%05d_P%05d_N%05d.mat', M, N, R, NumConcept, NumPos, MaxNeg);
 		if exist(label_file, 'file'),
 			fprintf('File [%s] already exist \n', label_file);
 		end
@@ -73,10 +74,12 @@ function calker_generate_random_classes(M, N, R, NumConcept)
 		
 		max_label = length(find(nonzero_idx>0));
 		
+		fprintf('--[%d/%d] Generating for class Pos = %d, Neg = %d...\n', find(PosSet == NumPos), length(PosSet), NumPos, MaxNeg);
+				
 		for kk = 1:NumConcept,
 			class_name = sprintf('random_class_%05d', kk);
 			
-			fprintf('[%d/%d] Generating for class ''%s''...\n', kk, NumConcept, class_name);	
+			%fprintf('[%d/%d] Generating for class ''%s''...\n', kk, NumConcept, class_name);	
 			
 			r_pos_idx = randperm(max_label);
 			r_pos_idx = r_pos_idx(1:NumPos);
@@ -95,10 +98,11 @@ function calker_generate_random_classes(M, N, R, NumConcept)
 		save( label_file, 'labels' );	
 	end
 	
-	NegSet = [10, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000, 3000, 4000, 5000];
+	%NegSet = [10, 100, 200, 300, 400, 500, 1000];
+	NegSet = [];
 	
 	for NumNeg = NegSet,
-		label_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/labels_P%05d_N%05d.mat', M, N, R, MaxPos, NumNeg);
+		label_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/labels_C%05d_P%05d_N%05d.mat', M, N, R, NumConcept, MaxPos, NumNeg);
 		if exist(label_file, 'file'),
 			fprintf('File [%s] already exist \n', label_file);
 		end
@@ -112,10 +116,10 @@ function calker_generate_random_classes(M, N, R, NumConcept)
 		
 		max_label = length(find(nonzero_idx>0));
 		
+		fprintf('-- [%d/%d] Generating for class Pos = %d, Neg = %d...\n', find(NegSet == NumNeg), length(PosSet), MaxPos, NumNeg);	
+		
 		for kk = 1:NumConcept,
 			class_name = sprintf('random_class_%05d', kk);
-			
-			fprintf('[%d/%d] Generating for class ''%s''...\n', kk, NumConcept, class_name);	
 			
 			r_pos_idx = randperm(max_label);
 			r_pos_idx = r_pos_idx(1:MaxPos);
