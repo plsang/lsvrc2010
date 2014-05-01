@@ -8,7 +8,8 @@ function calker_cal_all_kernels(M, N, R, varargin)
 	
 	imagenet_pat = 'train';
 	
-	imdb_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/imdb.mat', M, N, R);
+	%imdb_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/imdb.mat', M, N, R);
+	imdb_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_M%d_N%d_R%d/imdb.mat', M, N, R);
 	
 	if ~exist(imdb_file, 'file'),
 		error();
@@ -49,7 +50,8 @@ function calker_cal_all_kernels(M, N, R, varargin)
 		%% loading features
 	root_fea_dir = '/net/per610a/export/das11f/plsang/LSVRC2010/feature';	
 	fea_dir = sprintf('%s/%s/%s', root_fea_dir, fea_pat, imagenet_pat);
-	ker_dir = sprintf('%s/lsvrc2010_rand%dc_%di/%s/r%d', ker_root_dir, M, N, fea_pat, R);
+	%ker_dir = sprintf('%s/lsvrc2010_rand%dc_%di/%s/r%d', ker_root_dir, M, N, fea_pat, R);
+	ker_dir = sprintf('%s/lsvrc2010_M%d_N%d_R%d/%s', ker_root_dir, M, N, R, fea_pat);
 	if ~exist(ker_dir, 'file'),
 		mkdir(ker_dir);
 	end
