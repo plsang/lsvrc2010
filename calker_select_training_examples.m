@@ -1,7 +1,8 @@
 %% Select randomly M classes, N images
 function calker_select_training_examples(M, N, R)
 
-	imdb_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/imdb.mat', M, N, R);
+	%imdb_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/imdb.mat', M, N, R);
+	imdb_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_M%d_N%d_R%d/imdb.mat', M, N, R);
 	
 	if exist(imdb_file, 'file'),
 		fprintf('File already exist!');
@@ -27,10 +28,14 @@ function calker_select_training_examples(M, N, R)
 		
 		kfs = dir([class_kf_dir, '/*.JPEG']);
         
-		selected_img_idxs = [1:length(kfs)];	
-		img_rand_idx = randperm(length(kfs));
-		selected_img_idxs = selected_img_idxs(img_rand_idx(1:N));
-		
+		% select maximum N images for training
+		if N > length(kfs),
+			selected_img_idxs = [1:length(kfs)];
+		else
+			selected_img_idxs = [1:length(kfs)];	
+			img_rand_idx = randperm(length(kfs));
+			selected_img_idxs = selected_img_idxs(img_rand_idx(1:N));
+		end
 		imdb.(class_name) = selected_img_idxs;
 		count = count + 1;
 	end
