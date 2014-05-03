@@ -58,7 +58,7 @@ function calker_cal_all_kernels(M, N, R, varargin)
 	
 	codes = cell(length(train_classes));
 	
-	parfor kk = 1:length(train_classes),
+    for kk = 1:length(train_classes),
 		class_name_ii = train_classes{kk};
 		selected_img_idx_ii = imdb.(class_name_ii);
 		feat_file_ii = fullfile(fea_dir, [class_name_ii, '.mat']);
@@ -95,7 +95,7 @@ function calker_cal_all_kernels(M, N, R, varargin)
 		kers = cell(length(train_classes), 1);
 		
 		
-		parfor jj = 1:length(train_classes),
+	    for jj = 1:length(train_classes),
 			codes_jj = codes{jj};
 			
 			kers{jj} = codes_ii' * codes_jj;
@@ -108,7 +108,8 @@ function calker_cal_all_kernels(M, N, R, varargin)
 		%save( ker_file, 'kers');
 		
 	end
-
+	
+	quit;
 end
 
 function par_save( output_file, ker )

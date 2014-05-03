@@ -29,7 +29,7 @@ function calker_select_training_examples(M, N, R)
 		kfs = dir([class_kf_dir, '/*.JPEG']);
         
 		% select maximum N images for training
-		if N > length(kfs),
+		if N >= length(kfs),
 			selected_img_idxs = [1:length(kfs)];
 		else
 			selected_img_idxs = [1:length(kfs)];	

@@ -38,7 +38,8 @@ function calker_train_all_classes(M, N, R, varargin)
 		end  
 	end
 
-	imdb_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/imdb.mat', M, N, R);
+	%imdb_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/imdb.mat', M, N, R);
+	imdb_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_M%d_N%d_R%d/imdb.mat', M, N, R);
 	if ~exist(imdb_file, 'file'),
 		error();
 	end
@@ -50,7 +51,8 @@ function calker_train_all_classes(M, N, R, varargin)
 	selected_classes = fieldnames(imdb);	
 	
 	ker_root_dir = '/net/per610a/export/das11f/plsang/LSVRC2010/kernels/train';
-	ker_dir = sprintf('%s/lsvrc2010_rand%dc_%di/%s/r%d', ker_root_dir, M, N, fea_pat, R);
+	%ker_dir = sprintf('%s/lsvrc2010_rand%dc_%di/%s/r%d', ker_root_dir, M, N, fea_pat, R);
+	ker_dir = sprintf('%s/lsvrc2010_M%d_N%d_R%d/%s', ker_root_dir, M, N, R, fea_pat);
 	
 	fprintf('Initializing pre-computed kernels...\n');
 	
@@ -98,7 +100,7 @@ function calker_train_all_classes(M, N, R, varargin)
 		labels = double(all_labels(kk,:));
 		labels = labels(nonzero_idx);	% Removing all-zero indexes
 		
-		labeled_model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_M%d_N%d_R%d/%s/models/%s.mat', M, N, R, fea_pat, class_name);
+		labeled_model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_M%d_N%d_R%d/%s/labelled-models/%s.mat', M, N, R, fea_pat, class_name);
 		fprintf('Learning labelled models...\n');
 		
 		% assume MaxNeg ~= 0
@@ -134,51 +136,7 @@ function calker_train_all_classes(M, N, R, varargin)
 			fprintf('Skipped training %s \n', labeled_model_file);
 		end
 		
-		fprintf('Learning random unlabelled models...\n');
-		
-		for rr=1:rand_ann,
-			rand_model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_M%d_N%d_R%d/%s/models-r%d/%s.mat', M, N, R, fea_pat, rr, class_name);
-			
-			fprintf(' --- [%d/%d] Learning random unlabelled models...\n', rr, rand_ann);
-			
-			if exist(rand_model_file, 'file'),
-				fprintf('Skipped training %s \n', rand_model_file);
-				continue;
-			end
-			
-			pos_idx = find(labels == 1);
-			
-			r_pos_idx = randperm(length(labels));
-			r_pos_idx = r_pos_idx(1:length(pos_idx));
-			
-			r_neg_idx = setdiff(1:length(labels), r_pos_idx);
-			ridx = randperm(length(r_neg_idx));
-			r_neg_idx = r_neg_idx(ridx(1:MaxNeg));
-			
-			r_train_idx = [r_pos_idx, r_neg_idx];
-			
-			labels(r_pos_idx) = 1;
-			labels(r_neg_idx) = -1;
-			
-			posWeight = ceil(length(r_neg_idx)/length(pos_idx));
-						
-			svm = calker_svmkernellearn(train_ker(r_train_idx, r_train_idx), labels(r_train_idx),   ...
-							   'type', 'C',        ...
-							   ...%'C', 10,            ...
-							   'verbosity', 1,     ...
-							   ...%'rbf', 1,           ...
-							   'crossvalidation', cv, ...
-							   'C',	C, ...
-							   'weights', [+1 posWeight ; -1 1]') ;
-		
-			svm = svmflip(svm, labels(r_train_idx));	
-			
-			fprintf('\tSaving model ''%s''.\n', rand_model_file) ;
-			if ~exist(fileparts(rand_model_file), 'file'),
-				mkdir(fileparts(rand_model_file));
-			end
-			save( rand_model_file, 'svm' );	
-			
-		end
 	end
+	
+	quit;
 end
