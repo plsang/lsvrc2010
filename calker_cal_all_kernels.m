@@ -58,7 +58,7 @@ function calker_cal_all_kernels(M, N, R, varargin)
 	
 	codes = cell(length(train_classes));
 	
-    for kk = 1:length(train_classes),
+    parfor kk = 1:length(train_classes),
 		class_name_ii = train_classes{kk};
 		selected_img_idx_ii = imdb.(class_name_ii);
 		feat_file_ii = fullfile(fea_dir, [class_name_ii, '.mat']);
@@ -66,6 +66,11 @@ function calker_cal_all_kernels(M, N, R, varargin)
 		
 		codes_kk = load(feat_file_ii, 'codes');
 		codes_kk = codes_kk.codes(selected_img_idx_ii);
+		% Mar 3rd, generate random value for empty cells (no feature), 
+		% otherwise, feature dimension will be reduce after concatenating (e.g. 100--> 99)	
+		if any(cellfun('isempty', codes_kk)),
+			codes_kk{cellfun('isempty', codes_kk)} = single(rand(40960, 1));
+		end
 		codes_kk = cat(2, codes_kk{:});
 		
 		%% whitening NaN entries
@@ -95,7 +100,7 @@ function calker_cal_all_kernels(M, N, R, varargin)
 		kers = cell(length(train_classes), 1);
 		
 		
-	    for jj = 1:length(train_classes),
+	    parfor jj = 1:length(train_classes),
 			codes_jj = codes{jj};
 			
 			kers{jj} = codes_ii' * codes_jj;
