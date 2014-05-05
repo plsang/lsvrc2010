@@ -6,7 +6,6 @@ function calker_test_on_MED(M, N, R, varargin)
 	
 	start_class = 1;
 	end_class = M;
-	randann = 0;
 
 	fea_pat = 'covdet.hessian.sift.cb256.pca80.fisher';
 	
@@ -18,8 +17,6 @@ function calker_test_on_MED(M, N, R, varargin)
 				start_class = arg ;
 			case 'e' ;
 				end_class = arg ;
-			case 'randann'
-				randann = arg;	
 			case 'fea'
 				fea_pat = arg;	
 			otherwise
@@ -41,7 +38,8 @@ function calker_test_on_MED(M, N, R, varargin)
 	clips = [MEDMD.EventKit.EK130Ex.clips, MEDMD.EventBG.default.clips, MEDMD.RefTest.KINDREDTEST.clips, MEDMD.RefTest.MEDTEST.clips];
 	clips = unique(clips);	% 48396 clips
 	
-	imdb_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/imdb.mat', M, N, R);
+	%imdb_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/imdb.mat', M, N, R);
+	imdb_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_M%d_N%d_R%d/imdb.mat', M, N, R);
 	if ~exist(imdb_file, 'file'),
 		error();
 	end
@@ -62,11 +60,9 @@ function calker_test_on_MED(M, N, R, varargin)
 		
 		class_name = selected_classes{kk};
 		
-		if randann == 0,
-			model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_M%d_N%d_R%d/%s/models/%s.mat', M, N, R, fea_pat, class_name);
-		else
-			model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_M%d_N%d_R%d/%s/models-r%d/%s.mat', M, N, R, fea_pat, randann, class_name);
-		end
+		
+		model_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/experiments/lsvrc2010_M%d_N%d_R%d/%s/labelled-models/%s.mat', M, N, R, fea_pat, class_name);
+		
 		
 		if ~exist(model_file, 'file'),
 			error('File not found [%s]\n', model_file);
@@ -82,14 +78,11 @@ function calker_test_on_MED(M, N, R, varargin)
 		
 	end
 	
-	med_output_dir = '/net/per610a/export/das11f/plsang/trecvidmed13/feature/segment-100000';
+	med_output_dir = '/net/per610a/export/das11f/plsang/trecvidmed13/feature/segment-att';
 	output_dir = sprintf('%s/%s', med_output_dir, fea_pat);
 	
-	if randann == 0,
-		output_dir = sprintf('%s.att.M%d.N%d.R%d.labelled/devel', output_dir, M, N, R);
-	else
-		output_dir = sprintf('%s.att.M%d.N%d.R%d.r%d/devel', output_dir, M, N, R, randann);
-	end
+	
+	output_dir = sprintf('%s.att.M%d.N%d.R%d/devel', output_dir, M, N, R);
 	
 	if ~exist(output_dir, 'file'),
 		mkdir(output_dir);
