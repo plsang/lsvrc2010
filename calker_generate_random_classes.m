@@ -8,7 +8,8 @@ function calker_generate_random_classes(M, N, R, NumConcept)
 	MaxNeg = 10000; % max negative
 	fea_pat = 'covdet.hessian.sift.cb256.pca80.fisher';	
 	
-	imdb_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/imdb.mat', M, N, R);
+	%imdb_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/imdb.mat', M, N, R);
+	imdb_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_M%d_N%d_R%d/imdb.mat', M, N, R);
 	if ~exist(imdb_file, 'file'),
 		error();
 	end
@@ -20,7 +21,8 @@ function calker_generate_random_classes(M, N, R, NumConcept)
 	selected_classes = fieldnames(imdb);	
 	
 	ker_root_dir = '/net/per610a/export/das11f/plsang/LSVRC2010/kernels/train';
-	ker_dir = sprintf('%s/lsvrc2010_rand%dc_%di/%s/r%d', ker_root_dir, M, N, fea_pat, R);
+	%ker_dir = sprintf('%s/lsvrc2010_rand%dc_%di/%s/r%d', ker_root_dir, M, N, fea_pat, R);
+	ker_dir = sprintf('%s/lsvrc2010_M%d_N%d_R%d/%s', ker_root_dir, M, N, R, fea_pat);
 	
 	fprintf('Initializing pre-computed kernels...\n');
 	
@@ -57,10 +59,11 @@ function calker_generate_random_classes(M, N, R, NumConcept)
 	
 	
 	%PosSet = [10, 100, 200, 300, 400, 500, 1000];
-	PosSet = [10];
+	PosSet = [1, 10, 100];
 	
 	for NumPos = PosSet,
-		label_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/labels_C%05d_P%05d_N%05d.mat', M, N, R, NumConcept, NumPos, MaxNeg);
+		NumPos
+		label_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_M%d_N%d_R%d/labels_C%05d_P%05d_N%05d.mat', M, N, R, NumConcept, NumPos, MaxNeg);
 		if exist(label_file, 'file'),
 			fprintf('File [%s] already exist \n', label_file);
 		end
@@ -102,7 +105,7 @@ function calker_generate_random_classes(M, N, R, NumConcept)
 	NegSet = [];
 	
 	for NumNeg = NegSet,
-		label_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/labels_C%05d_P%05d_N%05d.mat', M, N, R, NumConcept, MaxPos, NumNeg);
+		label_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_M%d_N%d_R%d/labels_C%05d_P%05d_N%05d.mat', M, N, R, NumConcept, MaxPos, NumNeg);
 		if exist(label_file, 'file'),
 			fprintf('File [%s] already exist \n', label_file);
 		end
