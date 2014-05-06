@@ -4,8 +4,6 @@ function calker_train_all_random_classes(M, N, R, varargin)
 	
 	set_env;
 	
-	start_class = 1;
-	end_class = M;
 	cv = 0;	% cross validation
 	C = 1;	% C parameter for SVM
 	
@@ -13,7 +11,10 @@ function calker_train_all_random_classes(M, N, R, varargin)
 	
 	Pos = 100;
 	Neg = 10000;
-	num_concept = 10000;
+	num_concept = 20000;
+	
+	start_class = 1;
+	end_class = num_concept;
 	
 	for k=1:2:length(varargin),
 	
@@ -91,7 +92,7 @@ function calker_train_all_random_classes(M, N, R, varargin)
 	labels = double(labels(nonzero_idx));
 	
 	%label_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_rand%dc_%di/r%d/labels_C%05d_P%05d_N%05d.mat', M, N, R, num_concept, Pos, Neg);
-	label_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_M%d_N%d_R%d/labels_C%05d_P%05d_N%05d.mat', M, N, R, NumConcept, NumPos, MaxNeg);
+	label_file = sprintf('/net/per610a/export/das11f/plsang/LSVRC2010/metadata/lsvrc2010_M%d_N%d_R%d/labels_C%05d_P%05d_N%05d.mat', M, N, R, num_concept, Pos, Neg);
 	if ~exist(label_file, 'file'),
 		error();
 	end
@@ -144,4 +145,6 @@ function calker_train_all_random_classes(M, N, R, varargin)
 			
 		
 	end
+	
+	%quit;
 end
