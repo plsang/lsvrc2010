@@ -4,4 +4,6 @@ gen_sge_scripts('calker_test_all_concepts_on_MED', '1000 100 1 10000 10 10000 ''
 
 gen_local_scripts('calker_train_all_random_classes', '1000, 100, 1, ''S'', %d, ''E'', %d, ''NC'', 10000, ''Pos'', 1000', 10000, 8)
 
+gen_local_scripts('calker_train_all_random_classes', '1000, 100, 1, ''S'', %d, ''E'', %d, ''NC'', 10000, ''Pos'', 1000', 1250, 3, 6251)
+
 kill $(ps aux | grep '[c]alker_train_all_random_classes' | awk '{print $2}')
