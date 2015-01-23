@@ -1,5 +1,20 @@
-matlab -nodisplay -r "calker_train_all_classes(1000, 100, 1, 'fea', 'covdet.hessian.sift.cb256.pca80.fisher', 'S', 1, 'E', 100)" &
-matlab -nodisplay -r "calker_train_all_classes(1000, 100, 1, 'fea', 'covdet.hessian.sift.cb256.pca80.fisher', 'S', 101, 'E', 200)" &
-matlab -nodisplay -r "calker_train_all_classes(1000, 100, 1, 'fea', 'covdet.hessian.sift.cb256.pca80.fisher', 'S', 201, 'E', 300)" &
-matlab -nodisplay -r "calker_train_all_classes(1000, 100, 1, 'fea', 'covdet.hessian.sift.cb256.pca80.fisher', 'S', 301, 'E', 400)" &
-matlab -nodisplay -r "calker_train_all_classes(1000, 100, 1, 'fea', 'covdet.hessian.sift.cb256.pca80.fisher', 'S', 401, 'E', 500)" &
+matlab -nodisplay -r "calker_train_all_classes(1000, 100, 102, 'S', 1, 'E', 333)" &
+matlab -nodisplay -r "calker_train_all_classes(1000, 100, 102, 'S', 334, 'E', 666)" &
+matlab -nodisplay -r "calker_train_all_classes(1000, 100, 102, 'S', 667, 'E', 1000)" &
+wait
+matlab -nodisplay -r "calker_train_all_classes(1000, 100, 104, 'S', 1, 'E', 333)" &
+matlab -nodisplay -r "calker_train_all_classes(1000, 100, 104, 'S', 334, 'E', 666)" &
+matlab -nodisplay -r "calker_train_all_classes(1000, 100, 104, 'S', 667, 'E', 1000)" &
+wait
+matlab -nodisplay -r "calker_train_all_classes(1000, 100, 106, 'S', 1, 'E', 333)" &
+matlab -nodisplay -r "calker_train_all_classes(1000, 100, 106, 'S', 334, 'E', 666)" &
+matlab -nodisplay -r "calker_train_all_classes(1000, 100, 106, 'S', 667, 'E', 1000)" &
+wait
+matlab -nodisplay -r "calker_train_all_classes(1000, 100, 108, 'S', 1, 'E', 333)" &
+matlab -nodisplay -r "calker_train_all_classes(1000, 100, 108, 'S', 334, 'E', 666)" &
+matlab -nodisplay -r "calker_train_all_classes(1000, 100, 108, 'S', 667, 'E', 1000)" &
+wait
+matlab -nodisplay -r "calker_train_all_classes(1000, 100, 110, 'S', 1, 'E', 333)" &
+matlab -nodisplay -r "calker_train_all_classes(1000, 100, 110, 'S', 334, 'E', 666)" &
+matlab -nodisplay -r "calker_train_all_classes(1000, 100, 110, 'S', 667, 'E', 1000)" &
+wait

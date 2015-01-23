@@ -18,6 +18,11 @@ function calker_select_training_examples(M, N, R)
 	
 	imdb = struct;
 	
+	%% seed for truly random with different matlab sessions, 
+	%% otherwise everytime starting matlab, results will be the same
+	stream = RandStream('mt19937ar', 'Seed', sum(100*clock));
+	RandStream.setDefaultStream(stream);
+		
 	count = 1;
 	for ii = selected_class_idxs,
 		if mod(count, 10) == 0, 
